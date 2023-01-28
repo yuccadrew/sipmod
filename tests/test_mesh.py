@@ -1,4 +1,3 @@
-from mpi4py import MPI
 from unittest import TestCase
 import pytest
 
@@ -15,43 +14,79 @@ from sipmod.mpart import read_my_nodes
 
 class TestReadTriangleMesh(TestCase):
     def runTest(self):
+        try:
+            from mpi4py import MPI
+            comm = MPI.COMM_WORLD
+            myrank = comm.Get_rank()
+            # nrank = comm.Get_size()
+        except ImportError:
+            comm = None
+            myrank = 0
+            # nrank = 1
         mesh_prefix = 'docs/examples/meshes/mesh_box'
-        comm = MPI.COMM_WORLD
-        if comm.Get_rank() == 0:
+        if myrank == 0:
             read_triangle_mesh(mesh_prefix+'.1')
-        MPI.Comm.Barrier(comm)
+        if comm is not None:
+            MPI.Comm.Barrier(comm)
 
 
 class TestMeshTriRead(TestCase):
     def runTest(self):
+        try:
+            from mpi4py import MPI
+            comm = MPI.COMM_WORLD
+            myrank = comm.Get_rank()
+            # nrank = comm.Get_size()
+        except ImportError:
+            comm = None
+            myrank = 0
+            # nrank = 1
         mesh_prefix = 'docs/examples/meshes/mesh_box'
-        comm = MPI.COMM_WORLD
-        if comm.Get_rank() == 0:
+        if myrank == 0:
             MeshTri.read(mesh_prefix+'.1')
-        MPI.Comm.Barrier(comm)
+        if comm is not None:
+            MPI.Comm.Barrier(comm)
 
 
 class TestMpartTriRead(TestCase):
     def runTest(self):
+        try:
+            from mpi4py import MPI
+            comm = MPI.COMM_WORLD
+            myrank = comm.Get_rank()
+            nrank = comm.Get_size()
+        except ImportError:
+            comm = None
+            myrank = 0
+            nrank = 1
         mesh_prefix = 'docs/examples/meshes/mesh_box'
-        comm = MPI.COMM_WORLD
-        if comm.Get_rank() == 0:
-            metis_partition_tri(mesh_prefix, comm.Get_size())
-        MPI.Comm.Barrier(comm)
-        MpartTri.read(mesh_prefix+'.2', comm.Get_rank())
+        if myrank == 0:
+            metis_partition_tri(mesh_prefix, nrank)
+        if comm is not None:
+            MPI.Comm.Barrier(comm)
+        MpartTri.read(mesh_prefix+'.2', myrank)
 
 
 class TestMeshAttributes(TestCase):
     def runTest(self):
+        try:
+            from mpi4py import MPI
+            comm = MPI.COMM_WORLD
+            myrank = comm.Get_rank()
+            nrank = comm.Get_size()
+        except ImportError:
+            comm = None
+            myrank = 0
+            nrank = 1
         mesh_prefix = 'docs/examples/meshes/mesh_box'
-        comm = MPI.COMM_WORLD
-        if comm.Get_rank() == 0:
-            metis_partition_tri(mesh_prefix, comm.Get_size())
-        MPI.Comm.Barrier(comm)
+        if myrank == 0:
+            metis_partition_tri(mesh_prefix, nrank)
+        if comm is not None:
+            MPI.Comm.Barrier(comm)
 
-        if comm.Get_size() == 1:
+        if nrank == 1:
             mesh1 = MeshTri.read(mesh_prefix+'.2')
-            mesh2 = MpartTri.read(mesh_prefix+'.2', comm.Get_rank())
+            mesh2 = MpartTri.read(mesh_prefix+'.2', myrank)
             for attr in ['nodes', 'elements', 'facets', 'edges',
                          'subdomains', 'boundaries']:
                 dict1 = getattr(mesh1, attr)
@@ -64,15 +99,24 @@ class TestMeshAttributes(TestCase):
 
 class TestSubdomainNodes(TestCase):
     def runTest(self):
+        try:
+            from mpi4py import MPI
+            comm = MPI.COMM_WORLD
+            myrank = comm.Get_rank()
+            nrank = comm.Get_size()
+        except ImportError:
+            comm = None
+            myrank = 0
+            nrank = 1
         mesh_prefix = 'docs/examples/meshes/mesh_box'
-        comm = MPI.COMM_WORLD
-        if comm.Get_rank() == 0:
-            metis_partition_tri(mesh_prefix, comm.Get_size())
-        MPI.Comm.Barrier(comm)
+        if myrank == 0:
+            metis_partition_tri(mesh_prefix, nrank)
+        if comm is not None:
+            MPI.Comm.Barrier(comm)
 
-        if comm.Get_size() == 1:
+        if nrank == 1:
             mesh1 = MeshTri.read(mesh_prefix+'.2')
-            mesh2 = MpartTri.read(mesh_prefix+'.2', comm.Get_rank())
+            mesh2 = MpartTri.read(mesh_prefix+'.2', myrank)
             assert mesh1.subdomains.keys() == mesh2.subdomains.keys()
             for method in ['subdomain_nodes']:
                 for name in list(mesh1.subdomains) + ['none']:
@@ -90,15 +134,24 @@ class TestSubdomainNodes(TestCase):
 
 class TestBoundaryNodes(TestCase):
     def runTest(self):
+        try:
+            from mpi4py import MPI
+            comm = MPI.COMM_WORLD
+            myrank = comm.Get_rank()
+            nrank = comm.Get_size()
+        except ImportError:
+            comm = None
+            myrank = 0
+            nrank = 1
         mesh_prefix = 'docs/examples/meshes/mesh_box'
-        comm = MPI.COMM_WORLD
-        if comm.Get_rank() == 0:
-            metis_partition_tri(mesh_prefix, comm.Get_size())
-        MPI.Comm.Barrier(comm)
+        if myrank == 0:
+            metis_partition_tri(mesh_prefix, nrank)
+        if comm is not None:
+            MPI.Comm.Barrier(comm)
 
-        if comm.Get_size() == 1:
+        if nrank == 1:
             mesh1 = MeshTri.read(mesh_prefix+'.2')
-            mesh2 = MpartTri.read(mesh_prefix+'.2', comm.Get_rank())
+            mesh2 = MpartTri.read(mesh_prefix+'.2', myrank)
             assert mesh1.boundaries.keys() == mesh2.boundaries.keys()
             for method in ['boundary_nodes']:
                 for name in list(mesh1.boundaries) + ['none']:
@@ -121,15 +174,24 @@ class TestBoundaryNodes(TestCase):
 
 class TestSubdomainElements(TestCase):
     def runTest(self):
+        try:
+            from mpi4py import MPI
+            comm = MPI.COMM_WORLD
+            myrank = comm.Get_rank()
+            nrank = comm.Get_size()
+        except ImportError:
+            comm = None
+            myrank = 0
+            nrank = 1
         mesh_prefix = 'docs/examples/meshes/mesh_box'
-        comm = MPI.COMM_WORLD
-        if comm.Get_rank() == 0:
-            metis_partition_tri(mesh_prefix, comm.Get_size())
-        MPI.Comm.Barrier(comm)
+        if myrank == 0:
+            metis_partition_tri(mesh_prefix, nrank)
+        if comm is not None:
+            MPI.Comm.Barrier(comm)
 
-        if comm.Get_size() == 1:
+        if nrank == 1:
             mesh1 = MeshTri.read(mesh_prefix+'.2')
-            mesh2 = MpartTri.read(mesh_prefix+'.2', comm.Get_rank())
+            mesh2 = MpartTri.read(mesh_prefix+'.2', myrank)
             assert mesh1.subdomains.keys() == mesh2.subdomains.keys()
             for method in ['subdomain_elements']:
                 for name in list(mesh1.subdomains) + ['none']:
@@ -152,15 +214,24 @@ class TestSubdomainElements(TestCase):
 
 class TestBoundaryElements(TestCase):
     def runTest(self):
+        try:
+            from mpi4py import MPI
+            comm = MPI.COMM_WORLD
+            myrank = comm.Get_rank()
+            nrank = comm.Get_size()
+        except ImportError:
+            comm = None
+            myrank = 0
+            nrank = 1
         mesh_prefix = 'docs/examples/meshes/mesh_box'
-        comm = MPI.COMM_WORLD
-        if comm.Get_rank() == 0:
-            metis_partition_tri(mesh_prefix, comm.Get_size())
-        MPI.Comm.Barrier(comm)
+        if myrank == 0:
+            metis_partition_tri(mesh_prefix, nrank)
+        if comm is not None:
+            MPI.Comm.Barrier(comm)
 
-        if comm.Get_size() == 1:
+        if nrank == 1:
             mesh1 = MeshTri.read(mesh_prefix+'.2')
-            mesh2 = MpartTri.read(mesh_prefix+'.2', comm.Get_rank())
+            mesh2 = MpartTri.read(mesh_prefix+'.2', myrank)
             assert mesh1.subdomains.keys() == mesh2.subdomains.keys()
             self.assertEqual(mesh1.boundaries.keys(), mesh2.boundaries.keys())
             for method in ['boundary_elements']:
@@ -179,9 +250,18 @@ class TestBoundaryElements(TestCase):
 
 class TestGlobalToLocalMapping(TestCase):
     def runTest(self):
+        try:
+            from mpi4py import MPI
+            comm = MPI.COMM_WORLD
+            myrank = comm.Get_rank()
+            # nrank = comm.Get_size()
+        except ImportError:
+            comm = None
+            myrank = 0
+            # nrank = 1
+
         mesh_prefix = 'docs/examples/meshes/mesh_box'
-        comm = MPI.COMM_WORLD
-        if comm.Get_rank() == 0:
+        if myrank == 0:
             dof = 1
             npart = 3
             metis_partition_tri(mesh_prefix.split('.')[0], npart,
@@ -203,18 +283,29 @@ class TestGlobalToLocalMapping(TestCase):
                     l_nodes = e.l_nodes
                     t_nodes = map_global_to_local(g_inds, g_nodes)
                     assert_array_equal(l_nodes, t_nodes)
-        MPI.Comm.Barrier(comm)
+        if comm is not None:
+            MPI.Comm.Barrier(comm)
 
 
 class TestTopologicalEdges(TestCase):
     def runTest(self):
-        mesh_prefix = 'docs/examples/meshes/mesh_box'
-        comm = MPI.COMM_WORLD
-        if comm.Get_rank() == 0:
-            metis_partition_tri(mesh_prefix, comm.Get_size())
-        MPI.Comm.Barrier(comm)
+        try:
+            from mpi4py import MPI
+            comm = MPI.COMM_WORLD
+            myrank = comm.Get_rank()
+            nrank = comm.Get_size()
+        except ImportError:
+            comm = None
+            myrank = 0
+            nrank = 1
 
-        mesh = MpartTri.read(mesh_prefix+'.2', comm.Get_rank())
+        mesh_prefix = 'docs/examples/meshes/mesh_box'
+        if myrank == 0:
+            metis_partition_tri(mesh_prefix, nrank)
+        if comm is not None:
+            MPI.Comm.Barrier(comm)
+
+        mesh = MpartTri.read(mesh_prefix+'.2', myrank)
         sorted_edges1 = build_topological_edges(mesh.elements['lconns'])
         sorted_edges2 = np.unique(
             np.sort(mesh.edges['lconns'], axis=0), axis=1)
@@ -224,9 +315,18 @@ class TestTopologicalEdges(TestCase):
 
 class TestAijArgsFromMeshTriRead(TestCase):
     def runTest(self):
+        try:
+            from mpi4py import MPI
+            comm = MPI.COMM_WORLD
+            myrank = comm.Get_rank()
+            nrank = comm.Get_size()
+        except ImportError:
+            comm = None
+            myrank = 0
+            nrank = 1
+
         mesh_prefix = 'docs/examples/meshes/mesh_ex03'
-        comm = MPI.COMM_WORLD
-        if comm.Get_rank() == 0:
+        if myrank == 0:
             from sipmod.kernel import CellBasisTri, BilinearForm
 
             @BilinearForm
@@ -243,14 +343,24 @@ class TestAijArgsFromMeshTriRead(TestCase):
             indices0 = laplace._assemble(basis).indices
             indices1 = mesh.aij_args(nonghost_rows=False)['indices']
             assert_array_equal(indices0, indices1)
-        MPI.Comm.Barrier(comm)
+        if comm is not None:
+            MPI.Comm.Barrier(comm)
 
 
 class TestAijArgsFromMpartTriRead(TestCase):
     def runTest(self):
+        try:
+            from mpi4py import MPI
+            comm = MPI.COMM_WORLD
+            myrank = comm.Get_rank()
+            nrank = comm.Get_size()
+        except ImportError:
+            comm = None
+            myrank = 0
+            nrank = 1
+
         mesh_prefix = 'docs/examples/meshes/mesh_ex03'
-        comm = MPI.COMM_WORLD
-        if comm.Get_rank() == 0:
+        if myrank == 0:
             from sipmod.kernel import CellBasisTri, BilinearForm
 
             @BilinearForm
@@ -268,52 +378,82 @@ class TestAijArgsFromMpartTriRead(TestCase):
                 indices0 = laplace._assemble(basis).indices
                 indices1 = mesh.aij_args(nonghost_rows=False)['indices']
                 assert_array_equal(indices0, indices1)
-        MPI.Comm.Barrier(comm)
+        if comm is not None:
+            MPI.Comm.Barrier(comm)
 
 
 class TestAijArgsWithoutGhostRows(TestCase):
     def runTest(self):
+        try:
+            from mpi4py import MPI
+            comm = MPI.COMM_WORLD
+            myrank = comm.Get_rank()
+            nrank = comm.Get_size()
+        except ImportError:
+            comm = None
+            myrank = 0
+            nrank = 1
+
         mesh_prefix = 'docs/examples/meshes/mesh_ex03'
-        comm = MPI.COMM_WORLD
-        if comm.Get_rank() == 0:
+        if myrank == 0:
             nrank = 8
             metis_partition_tri(mesh_prefix, nrank)
-            for myrank in range(nrank):
-                mesh = MpartTri.read(mesh_prefix+'.2', myrank)
+            for irank in range(nrank):
+                mesh = MpartTri.read(mesh_prefix+'.2', irank)
                 indices0 = mesh.aij_args(test_indices=True)['indices']
                 indices1 = mesh.aij_args(test_indices=False)['indices']
                 assert_array_equal(indices0, indices1)
-        MPI.Comm.Barrier(comm)
+        if comm is not None:
+            MPI.Comm.Barrier(comm)
 
 
 class TestPartitionedNonGhostNodes(TestCase):
     def runTest(self):
+        try:
+            from mpi4py import MPI
+            comm = MPI.COMM_WORLD
+            myrank = comm.Get_rank()
+            nrank = comm.Get_size()
+        except ImportError:
+            comm = None
+            myrank = 0
+            nrank = 1
+
         mesh_prefix = 'docs/examples/meshes/mesh_ex03'
-        comm = MPI.COMM_WORLD
-        if comm.Get_rank() == 0:
+        if myrank == 0:
             nrank = 8
             metis_partition_tri(mesh_prefix, nrank)
             ms = MeshTri.read(mesh_prefix+'.2')
             glob_nid = []
-            for myrank in range(nrank):
-                mp = MpartTri.read(mesh_prefix+'.2', myrank)
+            for irank in range(nrank):
+                mp = MpartTri.read(mesh_prefix+'.2', irank)
                 glob_nid.append(mp.nodes['id'][~mp.nodes['ghost']])
             assert ms.nnodes == np.hstack(glob_nid).shape[0]
             assert ms.nnodes == np.unique(np.hstack(glob_nid)).shape[0]
-        MPI.Comm.Barrier(comm)
+        if comm is not None:
+            MPI.Comm.Barrier(comm)
 
 
 @pytest.mark.skip(reason="xfailed due to bugs in ghost elements/nodes")
 def test_partitioned_ghost_nodes():
+    try:
+        from mpi4py import MPI
+        comm = MPI.COMM_WORLD
+        myrank = comm.Get_rank()
+        nrank = comm.Get_size()
+    except ImportError:
+        comm = None
+        myrank = 0
+        nrank = 1
+
     mesh_prefix = 'docs/examples/meshes/mesh_ex03'
-    comm = MPI.COMM_WORLD
-    if comm.Get_rank() == 0:
+    if myrank == 0:
         nrank = 8
         metis_partition_tri(mesh_prefix, nrank)
         ms = MeshTri.read(mesh_prefix+'.2')
         aij_args1 = ms.aij_args(nonghost_rows=False)
-        for myrank in range(nrank):
-            mp = MpartTri.read(mesh_prefix+'.2', myrank)
+        for irank in range(nrank):
+            mp = MpartTri.read(mesh_prefix+'.2', irank)
             aij_args2 = mp.aij_args(nonghost_rows=False)
             glob_nid = mp.nodes['id'][~mp.nodes['ghost']]
             for idx in glob_nid:
@@ -322,4 +462,5 @@ def test_partitioned_ghost_nodes():
                 mask = aij_args2['indices'][0, :] == idx
                 pcols = np.unique(aij_args2['indices'][1, :][mask])
                 assert_array_equal(scols, pcols)
-    MPI.Comm.Barrier(comm)
+    if comm is not None:
+        MPI.Comm.Barrier(comm)

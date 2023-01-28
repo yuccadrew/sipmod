@@ -39,9 +39,14 @@ class TestPhysics(TestCase):
 
 class TestDictIO(TestCase):
     def runTest(self):
-        from mpi4py import MPI
-        comm = MPI.COMM_WORLD
-        if comm.Get_rank() == 0:
+        try:
+            from mpi4py import MPI
+            comm = MPI.COMM_WORLD
+            myrank = comm.Get_rank()
+        except ImportError:
+            comm = None
+            myrank = 0
+        if myrank == 0:
             hf_prefix = 'tests/test_utils'
             # test save_dict for various dtype
             data1 = {
@@ -84,4 +89,5 @@ class TestDictIO(TestCase):
             amend_dict(hf_prefix, {'new_array': array2[-1]}, replace_row)
             assert_array_equal(array2, load_dict(hf_prefix, 'new_array'))
             os.remove(hf_prefix+'.h5')
-        MPI.Comm.Barrier(comm)
+        if comm is not None:
+            MPI.Comm.Barrier(comm)
