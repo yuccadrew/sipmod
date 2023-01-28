@@ -1,0 +1,11 @@
+numpy
+scipy
+matplotlib
+ipython
+pytest
+mypy
+flake8
+pyupgrade
+sphinx
+h5py
+empymod
