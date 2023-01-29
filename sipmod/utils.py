@@ -533,7 +533,7 @@ class CapSolData:
                 f.write(' {:17.8E} {:17.8E} {:17.8E}'.format(*out)+'\n')
         return out
 
-    def integrated_moment(self, u: ndarray, order: int = 1) -> ndarray:
+    def integrated_moment(self, u: ndarray, order: int = 0) -> ndarray:
         if self.d is None:
             raise NotImplementedError
 
@@ -543,7 +543,7 @@ class CapSolData:
         u = u[:n*m+1].reshape(n, m)
         i = np.arange(n-1)
         j = np.where(self._z >= -self.d)[0][0]
-        dm = (0.5 * (r[i] + r[i+1])) ** order * hn[i] * u[i, j]
+        dm = (0.5 * (r[i] + r[i+1])) ** (order + 1) * hn[i] * u[i, j]
         return 2 * np.pi * np.sum(dm)
 
     @staticmethod
