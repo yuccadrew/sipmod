@@ -14,7 +14,7 @@ The library
 
 ## Installation
 ```
-git clone -b parallel https://github.com/yuccadrew/sipmod.git
+git clone https://github.com/yuccadrew/sipmod.git
 ```
 You can also try the library in the browser through [Google Colab](https://colab.research.google.com/github/yuccadrew/hello-world/blob/master/ex01.ipynb).
 
